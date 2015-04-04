@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/mliu95/LoLChallengeAnalyzer",
   "dependencies": {
-    "leagueapi": "^0.4.9"
+    "leagueapi": "^0.4.9",
+    "sqlite3": "~3.0.5"
   }
 }
