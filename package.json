@@ -1,0 +1,22 @@
+{
+  "name": "LoLChallengeAnalyzer",
+  "version": "0.0.0",
+  "description": "API Backend for LoLChallengeAnalyzer",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mliu95/LoLChallengeAnalyzer"
+  },
+  "author": "Michael Liu, Liam Bui",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mliu95/LoLChallengeAnalyzer/issues"
+  },
+  "homepage": "https://github.com/mliu95/LoLChallengeAnalyzer",
+  "dependencies": {
+    "leagueapi": "^0.4.9"
+  }
+}
