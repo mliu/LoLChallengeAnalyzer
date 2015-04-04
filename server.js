@@ -11,16 +11,16 @@ function storeMatchData(matchId) {
 	var stmt;
 	lolApi.getMatch(matchId, true, 'na', function(err, response) {
 		if(!err) {
+			db.run("BEGIN TRANSACTION");
 			for ( participant in response.participants ) {
-				db.run("BEGIN TRANSACTION");
 				db.serialize(function() {
 					db.run("CREATE TABLE if not exists c" + response.participants[participant].championId + " (id INTEGER PRIMARY KEY, kills INTEGER, assists INTEGER, deaths INTEGER, win BOOLEAN, gold INTEGER, cs INTEGER)");
 					stmt = db.prepare("INSERT INTO c" + response.participants[participant].championId + " VALUES (NULL, ?, ?, ?, ?, ?, ?)");
 					stmt.run(response.participants[participant].stats.kills, response.participants[participant].stats.assists, response.participants[participant].stats.deaths, response.participants[participant].stats.winner, response.participants[participant].stats.goldEarned, response.participants[participant].stats.minionsKilled);
 					stmt.finalize();
 				});
-				db.run("END");
 			}		
+			db.run("END");
 		}
 	});
 }
