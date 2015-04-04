@@ -8,28 +8,19 @@ lolApi.init(config.api_key);
 
 // Takes matchId and returns a JSON object (1 depth) of data we're interested in (e.g. kills, deaths, CS, etc.)
 function storeMatchData(matchId) {
+	var stmt;
 	lolApi.getMatch(matchId, true, 'na', function(err, response) {
 		if(!err) {
 			for ( participant in response.participants ) {
-				var data = {
-					"kills": response.participants[participant].stats.kills,
-					"assists": response.participants[participant].stats.assists,
-					"deaths": response.participants[participant].stats.deaths,
-					"win": response.participants[participant].stats.winner,
-					"gold": response.participants[participant].stats.goldEarned,
-					"cs": response.participants[participant].stats.minionsKilled 
-				}
+				db.run("BEGIN TRANSACTION");
 				db.serialize(function() {
-					db.run("CREATE TABLE if not exists " + "c" + response.participants[participant].championId + " (kills INTEGER, assists INTEGER, deaths INTEGER, win BOOLEAN, gold INTEGER, cs INTEGER)");
-					var stmt = db.prepare("INSERT INTO " + "c" + response.participants[participant].championId + " VALUES (?, ?, ?, ?, ?, ?)");
+					db.run("CREATE TABLE if not exists c" + response.participants[participant].championId + " (id INTEGER PRIMARY KEY, kills INTEGER, assists INTEGER, deaths INTEGER, win BOOLEAN, gold INTEGER, cs INTEGER)");
+					stmt = db.prepare("INSERT INTO c" + response.participants[participant].championId + " VALUES (NULL, ?, ?, ?, ?, ?, ?)");
 					stmt.run(response.participants[participant].stats.kills, response.participants[participant].stats.assists, response.participants[participant].stats.deaths, response.participants[participant].stats.winner, response.participants[participant].stats.goldEarned, response.participants[participant].stats.minionsKilled);
 					stmt.finalize();
-					//db.run("INSERT INTO " + response.participants[participant].championId + "(kills, assists, deaths, win, gold, cs) VALUES (" + response.participants[participant].stats.kills + ", " + response.participants[participant].stats.assists + ", " + response.participants[participant].stats.deaths + ", " + response.participants[participant].stats.winner + ", " + response.participants[participant].stats.goldEarned + ", " + response.participants[participant].stats.minionsKilled + ")");
-				})
-				// store this object by response.championId
-			}
-			// Do what you want with the response data
-			
+				});
+				db.run("END");
+			}		
 		}
 	});
 }
