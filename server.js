@@ -20,8 +20,11 @@ function storeMatchData(matchId) {
 					"cs": response.participants[participant].stats.minionsKilled 
 				}
 				db.serialize(function() {
-					db.run("CREATE TABLE if not exists " + response.participants[participant].championId + " (kills INTEGER, assists INTEGER, deaths INTEGER, win BOOLEAN, gold INTEGER, cs INTEGER)");
-					db.run("INSERT INTO " + response.participants[participant].championId + "(kills, assists, deaths, win, gold, cs) VALUES (" + response.participants[participant].stats.kills + ", " + response.participants[participant].stats.assists + ", " + response.participants[participant].stats.deaths + ", " + response.participants[participant].stats.winner + ", " + response.participants[participant].stats.goldEarned + ", " + response.participants[participant].stats.minionsKilled + ")");
+					db.run("CREATE TABLE if not exists " + "c" + response.participants[participant].championId + " (kills INTEGER, assists INTEGER, deaths INTEGER, win BOOLEAN, gold INTEGER, cs INTEGER)");
+					var stmt = db.prepare("INSERT INTO " + "c" + response.participants[participant].championId + " VALUES (?, ?, ?, ?, ?, ?)");
+					stmt.run(response.participants[participant].stats.kills, response.participants[participant].stats.assists, response.participants[participant].stats.deaths, response.participants[participant].stats.winner, response.participants[participant].stats.goldEarned, response.participants[participant].stats.minionsKilled);
+					stmt.finalize();
+					//db.run("INSERT INTO " + response.participants[participant].championId + "(kills, assists, deaths, win, gold, cs) VALUES (" + response.participants[participant].stats.kills + ", " + response.participants[participant].stats.assists + ", " + response.participants[participant].stats.deaths + ", " + response.participants[participant].stats.winner + ", " + response.participants[participant].stats.goldEarned + ", " + response.participants[participant].stats.minionsKilled + ")");
 				})
 				// store this object by response.championId
 			}
