@@ -10,6 +10,9 @@ function storeMatchData(matchId) {
 		if(!err) {
 			var data = JSON.parse(response);
 			// Do what you want with the data
+			console.log(data.region);
 		}
 	});
 }
+
+storeMatchData("1782367531");
