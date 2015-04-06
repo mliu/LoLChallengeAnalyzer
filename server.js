@@ -63,7 +63,24 @@ app.patch('/users/:user_id', function (req, res) {
 });
 app.get('/me', function (req, res) {
 	if(req.user.id) {
-		
+		db.get("SELECT * FROM users WHERE id=?", req.user.id, function(err, response) {
+			if(response) {
+				res.json(
+				{
+					"id": response.id,
+					"username": response.username,
+					"summoner": response.summoner,
+					"created_at": response.created_at
+				})
+			} 
+			else { 
+				res.status(400).json({ error: "No user found. Please try again." }) 
+				return;
+			}
+		})
+	} else {
+		res.status(400).json({ error: "Invalid request" })
+		return;
 	}
 });
 app.post('/users/auth', function (req, res) {
