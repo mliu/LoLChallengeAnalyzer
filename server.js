@@ -17,15 +17,15 @@ lolApi.setRateLimit(10, 600);
 db.run("CREATE TABLE if not exists champ_info (id INTEGER PRIMARY KEY, champion_id INTEGER, kills INTEGER, assists INTEGER, deaths INTEGER, win BOOLEAN, gold INTEGER, cs INTEGER, match_creation INTEGER, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
 db.run("CREATE TABLE if not exists users (id INTEGER PRIMARY KEY, username TEXT UNIQUE, summoner TEXT,password TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
 db.run("CREATE TABLE if not exists brackets (id INTEGER PRIMARY KEY, user_id INTEGER UNIQUE, bracket TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
+app.use(cors({origin: 'http://localhost'}));
+app.use(bodyParser.json());
 app.use(express_jwt({ secret: config.app_secret }).unless({path: ['/users', '/users/auth']}));
 app.use(function(err, req, res, next) {
 	if (err.name === 'UnauthorizedError') {
-		res.status(401).json( { error: 'Invalid token. Please login again.' });
+		res.status(401).json({ error: 'Invalid token. Please login again.' });
 		return;
 	}
 });
-app.use(cors({origin: 'http://localhost'}));
-app.use(bodyParser.json());
 
 // Takes matchId and returns a JSON object (1 depth) of data we're interested in (e.g. kills, deaths, CS, etc.)
 function storeMatchData(matchId) {
@@ -61,9 +61,9 @@ app.get('/brackets', function (req, res) {
 app.patch('/users/:user_id', function (req, res) {
 
 });
-app.get('/me', function(req, res) {
+app.get('/me', function (req, res) {
 	if(req.user.id) {
-		console.log("a");
+		
 	}
 });
 app.post('/users/auth', function (req, res) {
@@ -77,6 +77,7 @@ app.post('/users/auth', function (req, res) {
 				if(matches) {
 					var token = jwt.sign({ id: response.id }, config.app_secret);
 					res.json({ token: token, user: { username: response.username, summoner: response.summoner, created_at: response.created_at } });
+					return;
 				} else {
 					res.status(400).json({ error: "Invalid username/password, please try again." });
 					return;
@@ -108,6 +109,7 @@ app.post('/users', function (req, res) {
 	db.get("SELECT * FROM users WHERE username=? COLLATE NOCASE", req.body.username, function(err, response) {
 		if(response) {
 			res.status(409).json({ error: "This user is already registered" });
+			return;
 		} else {
 			bcrypt.hash(req.body.password, 10, function(err, hash) {
 				if(!err) {
@@ -118,8 +120,10 @@ app.post('/users', function (req, res) {
 					}, function(err) {
 						if(!err) {
 							res.json({ success: true });
+							return;
 						} else {
 							res.status(500).json({ error: "Sorry, something went wrong. Please try again" });
+							return;
 						}
 					});
 				}
