@@ -20,7 +20,7 @@ db.run("CREATE TABLE if not exists brackets (id INTEGER PRIMARY KEY, user_id INT
 app.use(express_jwt({ secret: config.app_secret }).unless({path: ['/users', '/users/auth']}));
 app.use(function(err, req, res, next) {
 	if (err.name === 'UnauthorizedError') {
-		res.status(401, 'Invalid token. Please login again.');
+		res.status(401).json( { error: 'Invalid token. Please login again.' });
 		return;
 	}
 });
@@ -60,6 +60,11 @@ app.get('/brackets', function (req, res) {
 });
 app.patch('/users/:user_id', function (req, res) {
 
+});
+app.get('/me', function(req, res) {
+	if(req.user.id) {
+		console.log("a");
+	}
 });
 app.post('/users/auth', function (req, res) {
 	if(validator.isNull(req.body.password) || !validator.isLength(req.body.password, 6) || validator.isNull(req.body.username) || !validator.isLength(req.body.username, 4, 20)) {
