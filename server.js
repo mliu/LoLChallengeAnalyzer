@@ -15,8 +15,10 @@ var config = require('./config.js'),
 lolApi.init(config.api_key);
 lolApi.setRateLimit(10, 600);
 db.run("CREATE TABLE if not exists champ_info (id INTEGER PRIMARY KEY, champion_id INTEGER, kills INTEGER, assists INTEGER, deaths INTEGER, win BOOLEAN, gold INTEGER, cs INTEGER, match_creation INTEGER, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
+db.run("CREATE TABLE if not exists batch_keys (id INTEGER PRIMARY KEY, batch_round INTEGER, batch TEXT)");
+db.run("CREATE TABLE if not exists matches (id INTEGER PRIMARY KEY, batch_round INTEGER, champion_1_id INTEGER, champion_1_kills INTEGER, champion_1_assists INTEGER, champion_1_deaths INTEGER, champion_1_wins INTEGER, champion_1_gold INTEGER, champion_1_cs INTEGER, champion_2_id INTEGER, champion_2_kills INTEGER, champion_2_assists INTEGER, champion_2_deaths INTEGER, champion_2_wins INTEGER, champion_2_gold INTEGER, champion_2_cs INTEGER)");
 db.run("CREATE TABLE if not exists users (id INTEGER PRIMARY KEY, username TEXT UNIQUE, summoner TEXT,password TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
-db.run("CREATE TABLE if not exists brackets (id INTEGER PRIMARY KEY, user_id INTEGER UNIQUE, bracket TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
+db.run("CREATE TABLE if not exists brackets (id INTEGER PRIMARY KEY, user_id INTEGER UNIQUE, batch60 TEXT, batch30 TEXT, batch15 TEXT, batch8 TEXT, batch4 TEXT, batch2 TEXT, batch1 TEXT, score INTEGER DEFAULT 0, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
 app.use(cors({origin: 'http://localhost'}));
 app.use(bodyParser.json());
 app.use(express_jwt({ secret: config.app_secret }).unless({path: ['/users', '/users/auth']}));
@@ -26,33 +28,6 @@ app.use(function(err, req, res, next) {
 		return;
 	}
 });
-
-// Takes matchId and returns a JSON object (1 depth) of data we're interested in (e.g. kills, deaths, CS, etc.)
-function storeMatchData(matchId) {
-	var stmt;
-	lolApi.getMatch(matchId, true, 'na', function(err, response) {
-		if(!err) {
-			db.run("BEGIN TRANSACTION");
-			stmt = db.prepare("INSERT INTO champ_info(champion_id, kills, assists, deaths, win, gold, cs, match_creation) VALUES ($champion_id, $kills, $assists, $deaths, $win, $gold, $cs, $match_creation)");
-			for ( participant in response.participants ) {
-				db.serialize(function() {
-					stmt.run({
-						$champion_id: response.participants[participant].championId,
-						$kills: response.participants[participant].stats.kills,
-						$assists: response.participants[participant].stats.assists,
-						$deaths: response.participants[participant].stats.deaths,
-						$win: response.participants[participant].stats.winner,
-						$gold: response.participants[participant].stats.goldEarned,
-						$cs: response.participants[participant].stats.minionsKilled,
-						$match_creation: response.matchCreation
-					});
-				});
-			}		
-			stmt.finalize();
-			db.run("END");
-		}
-	});
-}
 
 // API Routes
 app.get('/brackets', function (req, res) {
