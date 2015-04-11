@@ -45,12 +45,14 @@ function generateBatchKeys() {
 		}
 		else {
 			team_2_id = batch[(2*i)+1];
-			db.get("SELECT * FROM matches WHERE team_1_id=$team_1_id AND team_2_id=$team_2_id", {$team_1_id: team_1_id, $team_2_id: team_2_id}, function(err, match) {
-				if(determineWinner(match) == 1) {
-					key.append(team_1_id);
-				} else {
-					key.append(team_2_id);
-				}
+			db.get("SELECT * FROM team_data WHERE team_id=$team_1_id", {$team_1_id: team_1_id}, function(err, team_1_data) {
+				db.get("SELECT * FROM team_data WHERE team_id=$team_2_id", {$team_2_id: team_2_id}, function(err, team_2_data) {
+					if(determineWinner(team_1_data, team_2_data) == 1) {
+						key.append(team_1_id);
+					} else {
+						key.append(team_2_id);
+					}
+				});
 			});
 		}
 	}
@@ -63,9 +65,8 @@ function generateBatchKeys() {
 }
 
 // Returns 1 or 2 based on the match data
-function determineWinner(match) {
-	// TODO
-	return match.champion_1_kills > match.champion_2_kills ? 1 : 2;
+function determineWinner(team_1_data, team_2_data) {
+
 }
 
 // Loops through every bracket and calculates its score
@@ -112,13 +113,4 @@ function storeMatchData(matchId) {
 			db.run("END");
 		}
 	});
-}
-
-// Stores all matches
-function storeMatches() {
-	db.each("SELECT * from match_dump", function(err, row) {
-		if(!err) {
-			storeMatchData(row.info);
-		}
-	})
 }
