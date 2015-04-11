@@ -11,7 +11,6 @@ function loopthrough() {
 	dumpdb.run("BEGIN TRANSACTION");
 	dumpdb.each("SELECT * FROM match_dump", function(err, id) {
 		if(!err) {
-			console.log(id.info);
 			storeMatchData(id.info);
 		}
 	});
@@ -21,6 +20,7 @@ function loopthrough() {
 function storeMatchData(matchId) {
 	var stmt;
 	lolApi.getMatch(matchId, true, 'na', function(err, response) {
+		console.log("Match response");
 		if(!err) {
 			stmt = db.prepare("INSERT INTO champ_info(champion_id, kills, assists, deaths, win, gold, cs, match_creation) VALUES ($champion_id, $kills, $assists, $deaths, $win, $gold, $cs, $match_creation)");
 			for ( participant in response.participants ) {

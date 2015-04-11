@@ -23,8 +23,8 @@ function generateMatchResults(starttime, endtime) {
 function generateBatchKeys() {
 	var batch_type = 30,
 		batch = null,
-		champion_1_id = null,
-		champion_2_id = null,
+		team_1_id = null,
+		team_2_id = null,
 		key = [];
 	// Find batch type to generate keys for
 	db.get("SELECT * FROM batch_keys ORDER BY id DESC", function(err, round) {
@@ -34,22 +34,22 @@ function generateBatchKeys() {
 		}
 	});
 	if(batch_type = 30) {
-		// Array of champion ids
+		// Array of team ids
 		batch = [];
 	}
 	for(var i=0;i<Math.floor(batch.length/2);i++) {
-		champion_1_id = batch[2*i];
-		// If there is a case where a champion doesn't have a rival
+		team_1_id = batch[2*i];
+		// If there is a case where a team doesn't have a rival
 		if((2*i)+1>batch.length) {
-			key.append(champion_1_id);
+			key.append(team_1_id);
 		}
 		else {
-			champion_2_id = batch[(2*i)+1];
-			db.get("SELECT * FROM matches WHERE champion_1_id=$champion_1_id AND champion_2_id=$champion_2_id", {$champion_1_id: champion_1_id, $champion_2_id: champion_2_id}, function(err, match) {
+			team_2_id = batch[(2*i)+1];
+			db.get("SELECT * FROM matches WHERE team_1_id=$team_1_id AND team_2_id=$team_2_id", {$team_1_id: team_1_id, $team_2_id: team_2_id}, function(err, match) {
 				if(determineWinner(match) == 1) {
-					key.append(champion_1_id);
+					key.append(team_1_id);
 				} else {
-					key.append(champion_2_id);
+					key.append(team_2_id);
 				}
 			});
 		}

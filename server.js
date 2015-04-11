@@ -19,7 +19,7 @@ db.run("CREATE TABLE if not exists champ_info (id INTEGER PRIMARY KEY, champion_
 // The correct brackets per round
 db.run("CREATE TABLE if not exists batch_keys (id INTEGER PRIMARY KEY, batch_round INTEGER, batch TEXT)");
 // A "game" between two teams
-db.run("CREATE TABLE if not exists matches (id INTEGER PRIMARY KEY, batch_round INTEGER, team_1_id INTEGER, team_1_kills INTEGER, team_1_assists INTEGER, team_1_deaths INTEGER, team_1_wins INTEGER, team_1_gold INTEGER, team_1_cs INTEGER, team_2_id INTEGER, team_2_kills INTEGER, team_2_assists INTEGER, team_2_deaths INTEGER, team_2_wins INTEGER, team_2_gold INTEGER, team_2_cs INTEGER)");
+db.run("CREATE TABLE if not exists team_data (id INTEGER PRIMARY KEY, team_id INTEGER, team_kills INTEGER, team_assists INTEGER, team_deaths INTEGER, team_wins INTEGER, team_gold INTEGER, team_cs INTEGER)");
 // A static table of all champions in league and their team
 db.run("CREATE TABLE if not exists champions (id INTEGER PRIMARY KEY, champion_id INTEGER, team_id INTEGER)");
 // A static table of all the teams in the bracket
