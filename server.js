@@ -64,12 +64,40 @@ app.post('/brackets', function (req, res) {
 });
 // Edit a bracket. req.body will have batch30, batch15, batch8, batch4, batch2, and batch1
 app.put('/brackets/:bracket_id', function (req, res) {
-
+	db.run("UPDATE brackets SET batch30 = $batch30, batch15 = $batch15, batch8 = $batch8, batch4 = $batch4, batch2 = $batch2, batch1 = $batch1 WHERE user_id = $user_id)", {
+		$user_id: req.user.id,
+		$batch30: req.body.batch30,
+		$batch15: req.body.batch15,
+		$batch8: req.body.batch8,
+		$batch4: req.body.batch4,
+		$batch2: req.body.batch2,
+		$batch1: req.body.batch1
+	}, function(err, response) {
+		if(!err) {
+			res.json({ success: true });
+			return;
+		} else {
+			res.status(400).json({ error: "There were errors with your response: " + err });
+		}
+	});
 });
+
 // Edit a user information. req.body will have summoner and password.
 app.put('/users/:user_id', function (req, res) {
-
+	db.run("UPDATE users SET summoner = $summoner, password = $password WHERE user_id = $user_id)", {
+		$user_id: req.user.id,
+		$summoner: req.body.summoner,
+		$password: req.body.password
+	}, function(err, response) {
+		if(!err) { 
+			res.json({ success: true });
+			return;
+		} else {
+			res.status(400).json({ error: "There were errors with your response: " + err });
+		}
+	})
 });
+
 app.get('/me', function (req, res) {
 	if(req.user.id) {
 		db.get("SELECT * FROM users WHERE id=?", req.user.id, function (err, response) {
