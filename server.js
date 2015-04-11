@@ -31,7 +31,7 @@ db.run("CREATE TABLE if not exists brackets (id INTEGER PRIMARY KEY, user_id INT
 app.use(cors({origin: 'http://localhost'}));
 app.use(bodyParser.json());
 app.use(express_jwt({ secret: config.app_secret }).unless({path: ['/users', '/users/auth']}));
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
 	if (err.name === 'UnauthorizedError') {
 		res.status(401).json({ error: 'Invalid token. Please login again.' });
 		return;
@@ -39,15 +39,40 @@ app.use(function(err, req, res, next) {
 });
 
 // API Routes
-app.get('/brackets', function (req, res) {
-	// db.each("SELECT * from brackets ")
+// Get a bracket
+app.get('/brackets/:bracket_id', function (req, res) {
+	console.log(req.params.bracket_id);
 });
-app.patch('/users/:user_id', function (req, res) {
+// Create a bracket. req.body will have user_id and batch30 to batch1. Update the appropriate user column to set the bracket_id to the created bracket.
+app.post('/brackets', function (req, res) {
+	db.run("INSERT INTO brackets(user_id, batch30, batch15, batch8, batch4, batch2, batch1) VALUES ($user_id, $batch30, $batch15, $batch8, $batch4, $batch2, $batch1)", {
+		$user_id: req.user.id,
+		$batch30: req.body.batch30,
+		$batch15: req.body.batch15,
+		$batch8: req.body.batch8,
+		$batch4: req.body.batch4,
+		$batch2: req.body.batch2,
+		$batch1: req.body.batch1
+	}, function (err, response) {
+		if(!err) {
+			res.json({ success: true });
+			return;
+		} else {
+			res.status(400).json({ error: "There were errors with your response: " + err });
+		}
+	});
+});
+// Edit a bracket. req.body will have batch30, batch15, batch8, batch4, batch2, and batch1
+app.put('/brackets/:bracket_id', function (req, res) {
+
+});
+// Edit a user information. req.body will have summoner and password.
+app.put('/users/:user_id', function (req, res) {
 
 });
 app.get('/me', function (req, res) {
 	if(req.user.id) {
-		db.get("SELECT * FROM users WHERE id=?", req.user.id, function(err, response) {
+		db.get("SELECT * FROM users WHERE id=?", req.user.id, function (err, response) {
 			if(response) {
 				res.json(
 				{
@@ -72,9 +97,9 @@ app.post('/users/auth', function (req, res) {
 		res.status(400).json({ error: "Invalid username/password, please try again." });
 		return;
 	}
-	db.get("SELECT * FROM users WHERE username=? COLLATE NOCASE", req.body.username, function(err, response) {
+	db.get("SELECT * FROM users WHERE username=? COLLATE NOCASE", req.body.username, function (err, response) {
 		if(response) {
-			bcrypt.compare(req.body.password, response.password, function(err, matches) {
+			bcrypt.compare(req.body.password, response.password, function (err, matches) {
 				if(matches) {
 					var token = jwt.sign({ id: response.id }, config.app_secret);
 					res.json({ token: token, user: { username: response.username, summoner: response.summoner, created_at: response.created_at } });
@@ -107,18 +132,18 @@ app.post('/users', function (req, res) {
 		res.status(400).json({ error: "Username must be 4-20 characters" });
 		return;
 	}
-	db.get("SELECT * FROM users WHERE username=? COLLATE NOCASE", req.body.username, function(err, response) {
+	db.get("SELECT * FROM users WHERE username=? COLLATE NOCASE", req.body.username, function (err, response) {
 		if(response) {
 			res.status(409).json({ error: "This user is already registered" });
 			return;
 		} else {
-			bcrypt.hash(req.body.password, 10, function(err, hash) {
+			bcrypt.hash(req.body.password, 10, function (err, hash) {
 				if(!err) {
 					db.run("INSERT INTO users(username, summoner, password) VALUES ($username, $summoner, $password)", {
 						$username: req.body.username,
 						$summoner: req.body.summoner,
 						$password: hash
-					}, function(err) {
+					}, function (err) {
 						if(!err) {
 							res.json({ success: true });
 							return;
