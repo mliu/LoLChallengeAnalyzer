@@ -14,11 +14,20 @@ var config = require('./config.js'),
 // Initialize League API Poller, databases, settings etc.
 lolApi.init(config.api_key);
 lolApi.setRateLimit(10, 600);
+// Champion stats for one match. 10 rows created per game.
 db.run("CREATE TABLE if not exists champ_info (id INTEGER PRIMARY KEY, champion_id INTEGER, kills INTEGER, assists INTEGER, deaths INTEGER, win BOOLEAN, gold INTEGER, cs INTEGER, match_creation INTEGER, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
+// The correct brackets per round
 db.run("CREATE TABLE if not exists batch_keys (id INTEGER PRIMARY KEY, batch_round INTEGER, batch TEXT)");
-db.run("CREATE TABLE if not exists matches (id INTEGER PRIMARY KEY, batch_round INTEGER, champion_1_id INTEGER, champion_1_kills INTEGER, champion_1_assists INTEGER, champion_1_deaths INTEGER, champion_1_wins INTEGER, champion_1_gold INTEGER, champion_1_cs INTEGER, champion_2_id INTEGER, champion_2_kills INTEGER, champion_2_assists INTEGER, champion_2_deaths INTEGER, champion_2_wins INTEGER, champion_2_gold INTEGER, champion_2_cs INTEGER)");
-db.run("CREATE TABLE if not exists users (id INTEGER PRIMARY KEY, username TEXT UNIQUE, summoner TEXT,password TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
-db.run("CREATE TABLE if not exists brackets (id INTEGER PRIMARY KEY, user_id INTEGER UNIQUE, batch60 TEXT, batch30 TEXT, batch15 TEXT, batch8 TEXT, batch4 TEXT, batch2 TEXT, batch1 TEXT, score INTEGER DEFAULT 0, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
+// A "game" between two teams
+db.run("CREATE TABLE if not exists matches (id INTEGER PRIMARY KEY, batch_round INTEGER, team_1_id INTEGER, team_1_kills INTEGER, team_1_assists INTEGER, team_1_deaths INTEGER, team_1_wins INTEGER, team_1_gold INTEGER, team_1_cs INTEGER, team_2_id INTEGER, team_2_kills INTEGER, team_2_assists INTEGER, team_2_deaths INTEGER, team_2_wins INTEGER, team_2_gold INTEGER, team_2_cs INTEGER)");
+// A static table of all champions in league and their team
+db.run("CREATE TABLE if not exists champions (id INTEGER PRIMARY KEY, champion_id INTEGER, team_id INTEGER)");
+// A static table of all the teams in the bracket
+db.run("CREATE TABLE if not exists teams (id INTEGER PRIMARY KEY, name TEXT, description TEXT)");
+// User table
+db.run("CREATE TABLE if not exists users (id INTEGER PRIMARY KEY, username TEXT UNIQUE, summoner TEXT, bracket_id INTEGER UNIQUE, password TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
+// User brackets table
+db.run("CREATE TABLE if not exists brackets (id INTEGER PRIMARY KEY, user_id INTEGER UNIQUE, batch30 TEXT, batch15 TEXT, batch8 TEXT, batch4 TEXT, batch2 TEXT, batch1 TEXT, score INTEGER DEFAULT 0, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
 app.use(cors({origin: 'http://localhost'}));
 app.use(bodyParser.json());
 app.use(express_jwt({ secret: config.app_secret }).unless({path: ['/users', '/users/auth']}));

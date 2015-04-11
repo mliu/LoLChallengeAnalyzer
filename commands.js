@@ -11,10 +11,9 @@ lolApi.setRateLimit(10, 600);
 // Takes in all match data on the day (UNIX timestamp) and puts it into the matches table
 function generateMatchResults(starttime, endtime) {
 	db.run("BEGIN TRANSACTION");
-	db.each("SELECT * FROM champ_info WHERE match_creation >= datetime($starttime, 'unixepoch') AND match_creation < datetime($endtime, 'unixepoch')", {$starttime: starttime, $endtime: endtime}, function(err, champ_info) {
+	db.each("SELECT * FROM champ_info", {$starttime: starttime, $endtime: endtime}, function(err, champ_info) {
 		if(!err) {
-			//TODO
-			db.get("SELECT * FROM matches WHERE champion_1_id=$champion_1_id AND champion_2_id=$champion_2_id", {$champion_1_id: champ_info})
+			
 		}
 	});
 	db.run("END");
@@ -22,7 +21,7 @@ function generateMatchResults(starttime, endtime) {
 
 // Generates the correct batch of champions going into the next round. Matches should have already been populated by this point.
 function generateBatchKeys() {
-	var batch_type = 60,
+	var batch_type = 30,
 		batch = null,
 		champion_1_id = null,
 		champion_2_id = null,
@@ -34,7 +33,7 @@ function generateBatchKeys() {
 			batch = JSON.parse(round.batch);
 		}
 	});
-	if(batch_type = 60) {
+	if(batch_type = 30) {
 		// Array of champion ids
 		batch = [];
 	}
@@ -63,7 +62,7 @@ function generateBatchKeys() {
 	});
 }
 
-// Returns 1 or 2
+// Returns 1 or 2 based on the match data
 function determineWinner(match) {
 	// TODO
 	return match.champion_1_kills > match.champion_2_kills ? 1 : 2;
