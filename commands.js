@@ -81,7 +81,7 @@ function generateBatchKeys() {
 
 // Returns 1 or 2 based on the match data
 function determineWinner(team_1_data, team_2_data) {
-
+	return ((team_1_data.team_kills + team_1_data.team_assists) / team_1_data.team_deaths) > ((team_2_data.team_kills + team_2_data.team_assists) / team_2_data.team_deaths)? 1 : 2;
 }
 
 // Loops through every bracket and calculates its score
