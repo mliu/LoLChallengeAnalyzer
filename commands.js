@@ -11,9 +11,24 @@ lolApi.setRateLimit(10, 600);
 // Takes in all match data on the day (UNIX timestamp) and puts it into the matches table
 function generateMatchResults(starttime, endtime) {
 	db.run("BEGIN TRANSACTION");
-	db.each("SELECT * FROM champ_info", {$starttime: starttime, $endtime: endtime}, function(err, champ_info) {
+	db.each("SELECT * FROM champ_info", function(err, champ_info) {
 		if(!err) {
-			
+			db.run("SELECT * FROM champions WHERE champion_id=$champion_id", {$champion_id: champ_info.champion_id}, function(err, champion) {
+				db.run("SELECT * FROM team_data WHERE team_id=$team_id", {$team_id: champion.team_id}, function(err, team_data) {
+					db.run("UPDATE team_data SET team_kills=$team_kills, team_assists=$team_assists, team_deaths=$team_deaths, team_wins=$team_wins, team_gold=$team_gold, team_cs=$team_cs", {
+						$team_kills: team_data.team_kills + champ_info.kills,
+						$team_assists: team_data.team_assists + champ_info.assists,
+						$team_deaths: team_data.team_deaths + champ_info.deaths,
+						$team_wins: team_data.team_wins + champ_info.win,
+						$team_gold: team_data.team_gold + champ_info.gold,
+						$team_cs: team_data.team_cs + champ_info.cs
+					}, function(err, response) {
+						if(err) {
+							console.log(err);
+						}
+					})
+				})
+			})
 		}
 	});
 	db.run("END");
