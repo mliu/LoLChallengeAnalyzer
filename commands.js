@@ -72,7 +72,7 @@ function generateBatchKeys() {
 		}
 	}
 	// Insert new key into batch_keys table
-	db.run("INSERT INTO batch_keys(batch_round, batch) VALUES ($batch_round, $batch)", {$batch_round: batch_type, $batch: key}, function (err, response) {
+	db.run("INSERT INTO batch_keys(batch_round, batch) VALUES ($batch_round, $batch)", {$batch_round: batch_type, $batch: JSON.stringify(key)}, function (err, response) {
 		if(err) {
 			console.log("Error generating batch keys! " + err);
 		}
