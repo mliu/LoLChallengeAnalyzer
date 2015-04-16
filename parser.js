@@ -8,13 +8,13 @@ lolApi.init(config.api_key);
 lolApi.setRateLimit(10, 600);
 
 function loopthrough() {
-	dumpdb.run("BEGIN TRANSACTION");
-	dumpdb.each("SELECT * FROM match_dump", function(err, id) {
+	db.run("BEGIN TRANSACTION");
+	db.each("SELECT * FROM match_dump", function(err, id) {
 		if(!err) {
 			storeMatchData(id.info);
 		}
 	});
-	dumpdb.run("END TRANSACTION");
+	db.run("END TRANSACTION");
 }
 
 function storeMatchData(matchId) {
@@ -22,9 +22,9 @@ function storeMatchData(matchId) {
 	lolApi.getMatch(matchId, true, 'na', function(err, response) {
 		console.log("Match response");
 		if(!err) {
-			stmt = db.prepare("INSERT INTO champ_info(champion_id, kills, assists, deaths, win, gold, cs, match_creation) VALUES ($champion_id, $kills, $assists, $deaths, $win, $gold, $cs, $match_creation)");
+			stmt = dumpdb.prepare("INSERT INTO champ_info(champion_id, kills, assists, deaths, win, gold, cs, match_creation) VALUES ($champion_id, $kills, $assists, $deaths, $win, $gold, $cs, $match_creation)");
 			for ( participant in response.participants ) {
-				db.serialize(function() {
+				dumpdb.serialize(function() {
 					stmt.run({
 						$champion_id: response.participants[participant].championId,
 						$kills: response.participants[participant].stats.kills,
