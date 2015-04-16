@@ -4,6 +4,7 @@ var config = require('./config.js'),
 	dumpdb = new sqlite3.Database('dump.db'),
 	lolApi = require('leagueapi')
 
+dumpdb.run("CREATE TABLE if not exists champ_info (id INTEGER PRIMARY KEY, champion_id INTEGER, kills INTEGER, assists INTEGER, deaths INTEGER, win BOOLEAN, gold INTEGER, cs INTEGER, match_creation INTEGER, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
 lolApi.init(config.api_key);
 lolApi.setRateLimit(10, 600);
 
