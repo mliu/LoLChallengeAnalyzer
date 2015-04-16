@@ -27,7 +27,7 @@ db.run("CREATE TABLE if not exists teams (id INTEGER PRIMARY KEY, name TEXT, sho
 // User table
 db.run("CREATE TABLE if not exists users (id INTEGER PRIMARY KEY, username TEXT UNIQUE, summoner TEXT, bracket_id INTEGER UNIQUE, password TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
 // User brackets table
-db.run("CREATE TABLE if not exists brackets (id INTEGER PRIMARY KEY, user_id INTEGER UNIQUE, batch60 TEXT, batch30 TEXT, batch15 TEXT, batch8 TEXT, batch4 TEXT, batch2 TEXT, batch1 TEXT, score INTEGER DEFAULT 0, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
+db.run("CREATE TABLE if not exists brackets (id INTEGER PRIMARY KEY, user_id INTEGER UNIQUE, batch62 TEXT, batch31 TEXT, batch16 TEXT, batch8 TEXT, batch4 TEXT, batch2 TEXT, batch1 TEXT, score INTEGER DEFAULT 0, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
 app.use(cors({origin: 'http://localhost'}));
 app.use(bodyParser.json());
 app.use(express_jwt({ secret: config.app_secret }).unless({path: ['/users', '/users/auth']}));
