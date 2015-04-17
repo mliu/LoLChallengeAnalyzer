@@ -41,7 +41,22 @@ app.use(function (err, req, res, next) {
 // API Routes
 // Get a bracket
 app.get('/brackets/:bracket_id', function (req, res) {
-	console.log(req.params.bracket_id);
+//	console.log(req.params.bracket_id);
+	db.get("SELECT * FROM brackets WHERE id=?", req.params.bracket_id, function (err, response) {
+			if(response) {
+				res.json(
+				{
+					"id": response.id,
+					"user_id": response.user_id,
+					"bracket": response.bracket,
+					"created_at": response.created_at
+				})
+			} 
+			else { 
+				res.status(400).json({ error: "No bracket found. Please try again." }) 
+				return;
+			}
+		})
 });
 // Create a bracket. req.body will have user_id and batch30 to batch1. Update the appropriate user column to set the bracket_id to the created bracket.
 app.post('/brackets', function (req, res) {
