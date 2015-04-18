@@ -15,7 +15,7 @@ var config = require('./config.js'),
 lolApi.init(config.api_key);
 lolApi.setRateLimit(10, 600);
 // Champion stats for one match. 10 rows created per game.
-db.run("CREATE TABLE if not exists champ_info (id INTEGER PRIMARY KEY, champion_id INTEGER, kills INTEGER, assists INTEGER, deaths INTEGER, win BOOLEAN, gold INTEGER, cs INTEGER, match_creation INTEGER, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
+db.run("CREATE TABLE if not exists champ_info (champion_id INTEGER, kills INTEGER, assists INTEGER, deaths INTEGER, win BOOLEAN, gold INTEGER, cs INTEGER)");
 // The correct brackets per round
 db.run("CREATE TABLE if not exists batch_keys (id INTEGER PRIMARY KEY, batch_round INTEGER, batch TEXT)");
 // A "game" between two teams
@@ -56,7 +56,7 @@ app.get('/brackets/:bracket_id', function (req, res) {
 				res.status(400).json({ error: "No bracket found. Please try again." }) 
 				return;
 			}
-		})
+		});
 });
 // Create a bracket. req.body will have user_id and batch30 to batch1. Update the appropriate user column to set the bracket_id to the created bracket.
 app.post('/brackets', function (req, res) {
